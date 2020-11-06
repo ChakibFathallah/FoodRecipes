@@ -10,6 +10,8 @@ public class RestService {
     private static Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
                                                         .baseUrl(Constants.BASE_URL)
                                                         .addConverterFactory(GsonConverterFactory.create());
+
+
     private static Retrofit retrofit = retrofitBuilder.build();
 
     private static RestApi restEndPoint = retrofit.create(RestApi.class);

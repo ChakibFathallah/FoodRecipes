@@ -14,8 +14,8 @@ public interface RestApi {
     //SEARCH
     @GET(Constants.SEARCH)
     Call<RecipeSearchResponse> searchRecipe(
-            @Query("q")  String query,
-            @Query("page")  String page
+            @Query("q") String query,
+            @Query("page") String page
     );
 
     //GET RECIPE REQUEST

@@ -5,40 +5,73 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.mvvm.foodrecipes.adapters.OnRecipeListener;
+import com.mvvm.foodrecipes.adapters.RecipeAdapter;
 import com.mvvm.foodrecipes.models.Recipe;
 import com.mvvm.foodrecipes.requests.RestApi;
 import com.mvvm.foodrecipes.requests.RestService;
 import com.mvvm.foodrecipes.requests.responses.RecipeResponse;
-import com.mvvm.foodrecipes.requests.responses.RecipeSearchResponse;
+import com.mvvm.foodrecipes.viewmodels.RecipeListViewModel;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class RecipeListActivity extends BaseActivity {
+public class RecipeListActivity extends BaseActivity implements OnRecipeListener {
 
-    private static final String TAG = "RecipeListActivity";
+    private static final String TAG = RecipeListActivity.class.getSimpleName();
+
+    private RecipeListViewModel mRecipeListViewModel;
+    private RecyclerView mRecyclerView;
+    private RecipeAdapter mRecipeAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_list);
+        mRecyclerView = findViewById(R.id.recipe_list);
 
-        findViewById(R.id.test).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                testRetrofitRequest();
-            }
-        });
+        mRecipeListViewModel = ViewModelProviders.of(this).get(RecipeListViewModel.class);
+
+        initRecyclerView();
+        subscribeObservers();
 
     }
 
+    private void subscribeObservers(){
+        mRecipeListViewModel.getRecipes().observe(this, new Observer<List<Recipe>>() {
+            @Override
+            public void onChanged(List<Recipe> recipes) {
+                if (recipes != null){
+                    for (Recipe recipe : recipes){
+                        Log.d(TAG, "onChanged: " + recipe.getTitle());
+                    }
+                    mRecipeAdapter.setRecipes(recipes);
+                }
+            }
+        });
+    }
 
-    private void testRetrofitRequest(){
+    private void initRecyclerView(){
+        mRecipeAdapter = new RecipeAdapter(this);
+        mRecyclerView.setAdapter(mRecipeAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    private void searchRecipesApi(String query, int pageNumber){
+        mRecipeListViewModel.searchRecipesApi(query, pageNumber);
+    }
+
+    private void testRetrofitSearchRequest(){
+        searchRecipesApi("chicken breast", 1);
        /* RestApi restApi = RestService.getRestApi();
 
         Call<RecipeSearchResponse> responseCall = restApi.searchRecipe(
@@ -70,8 +103,19 @@ public class RecipeListActivity extends BaseActivity {
 
             }
         });*/
+    }
 
+    @Override
+    public void onRecipeClick(int position) {
 
+    }
+
+    @Override
+    public void onCategoryClick(String category) {
+
+    }
+
+    private void testRetrofitGetRecipeRequest(){
         RestApi restApi = RestService.getRestApi();
 
         Call<RecipeResponse> responseCall = restApi.getRecipe(
