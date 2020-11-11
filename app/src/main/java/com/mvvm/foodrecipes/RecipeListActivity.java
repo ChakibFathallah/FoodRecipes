@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import androidx.appcompat.widget.SearchView;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -32,6 +33,7 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
     private RecipeListViewModel mRecipeListViewModel;
     private RecyclerView mRecyclerView;
     private RecipeAdapter mRecipeAdapter;
+    private SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +45,7 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
 
         initRecyclerView();
         subscribeObservers();
-
+        initSearchView();
     }
 
     private void subscribeObservers(){
@@ -58,6 +60,8 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
                 }
             }
         });
+
+        //mRecipeListViewModel.is
     }
 
     private void initRecyclerView(){
@@ -66,12 +70,8 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
-    private void searchRecipesApi(String query, int pageNumber){
-        mRecipeListViewModel.searchRecipesApi(query, pageNumber);
-    }
 
-    private void testRetrofitSearchRequest(){
-        searchRecipesApi("chicken breast", 1);
+    private void testRetrofitRequest(){
        /* RestApi restApi = RestService.getRestApi();
 
         Call<RecipeSearchResponse> responseCall = restApi.searchRecipe(
@@ -82,7 +82,7 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
         responseCall.enqueue(new Callback<RecipeSearchResponse>() {
             @Override
             public void onResponse(Call<RecipeSearchResponse> call, Response<RecipeSearchResponse> response) {
-                Log.d(TAG, "onResponse: server response" + response.toString());
+
                 if (response.code() == 200){
                     Log.d(TAG,"onResponse: " + response.body().toString());
                     List<Recipe> recipeList = new ArrayList<>(response.body().getRecipes());
@@ -103,6 +103,23 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
 
             }
         });*/
+    }
+
+    private void initSearchView(){
+        searchView = findViewById(R.id.search_view);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                mRecipeAdapter.displayLoading();
+                mRecipeListViewModel.searchRecipesApi(query, 1);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
     }
 
     @Override

@@ -25,6 +25,10 @@ public class RecipeListViewModel extends ViewModel {
         return mRecipeRepository.getRecipes();
     }
 
+    public LiveData<Boolean> isQueryExhausted(){
+        return mRecipeRepository.isQueryExhausted();
+    }
+
     public void searchRecipesApi(String query, int pageNumber){
         mRecipeRepository.searchRecipesApi(query, pageNumber);
     }
